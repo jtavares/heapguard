@@ -79,9 +79,9 @@ set under test.
 # Unit Tests
 To unit test `heapguard` on your hardware:
 
-1.) choose overflow detection in heapguard.h
-2.) run `make && ./heapguard_test` and confirm success
-3.) repeat steps 1 and 2 for underflow detection
+1. choose overflow detection in heapguard.h
+2. run `make && ./heapguard_test` and confirm success
+3. repeat steps 1 and 2 for underflow detection
 
 (This process obviously needs to be improved)
 

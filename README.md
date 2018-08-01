@@ -94,9 +94,9 @@ are harder/better/faster/stronger.
 
 `heapguard` was developed to diagnose an out-of-bounds memory condition in a
 small embedded software program running on a platform where access to these
-tools was not practical due to memory limitations, as well asthe age of the OS
-and toolchain. If you find yourself in this situation, maybe `heapguard` will
-be useful to you, too.
+tools was not practical due to memory limitations, as well as the age of the
+OS and toolchain. If you find yourself in this situation, maybe `heapguard`
+will be useful to you, too.
 
 # Unit Tests
 To unit test `heapguard` on your hardware:

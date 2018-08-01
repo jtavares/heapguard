@@ -1,9 +1,13 @@
 # heapguard Overview
-`heapguard` is a simple overflow and underflow detector.
+`heapguard` is a simple overflow and underflow detector which can be used to
+detect and locate suspected out-of-bounds memory accesses to the heap.
 
-`heapguard` hooks the memory manager by overriding library symbols
-`malloc()` and friends to allocates memory in such a way to make it
-possible to detect overflows and underflows at time of offense.
+`heapguard` hooks the memory manager by overriding library symbols `malloc()`
+and friends to allocate memory in such a way to make it possible to detect
+overflows and underflows *at the time of offense*. Your application will 
+segfault or break at the precise moment an out-of-bounds read or write occurs,
+rather than at some arbitrary point in the future when the corrupted memory
+is used.
 
 `heapguard` can be configured at compile time to detect either underflows or
 overflows, but not both at the same time.
@@ -35,8 +39,8 @@ allocation and marking it as PROT_NONE so that seg fault occurs on first
 read or write. The user's allocation request is aligned according to
 HEAPGUARD_MIN_ALIGNMENT (in the case of malloc()) or as requested via
 memalign(), and located at close to the guard page as permitted by said
-alignment. This implies that not all overflows can be detected; the over
-flow grow so large so as exceed the slack in the requested alignment and
+alignment. This implies that not all overflows can be detected; the overflow
+must grow so large so as to exceed the slack in the requested alignment and
 cross into the guard page.
 
 ### Memory Usage
@@ -50,7 +54,7 @@ memory page due to demand paging.
 ## Alignment
 In all cases, the maximum supported user-requested alignment is one page
 (`HEAPGUARD_PAGE_SIZE`) and the minimum supported user-requested alignment
-is `HEAPGUARD_MIN_ALIGNMENT` (defined in heapguard.h).
+is `HEAPGUARD_MIN_ALIGNMENT` (defined in `heapguard.h`).
 
 # Usage
 
@@ -64,6 +68,8 @@ the ways described above.
 See `heapguard.h` for configuration parameters.
 
 ## Caveats
+
+### Memory Map Usage
 Note that `heapguard` makes aggressive use of the kernel's memory mapping
 facilities. You may need to increase your kernel's maximum VM mapping count
 from its default. For example:
@@ -72,9 +78,25 @@ from its default. For example:
 sudo sysctl -w vm.max_map_count=999999
 ```
 
-Even then, you may find yourself running out of RAM very quickly in
-constrained environments. In these cases, consider using a smaller data
-set under test.
+### Physical Memory Usage
+`heapguard` thwarts the memory manager's best efforts to allocate memory
+efficiently. The overhead on large allocations is negligible, but small
+allocations can have enormous amplification factors. As such, you may find
+yourself running out of RAM very quickly in constrained environments. In these
+cases, consider using a smaller data set, or a subset of your application,
+during test.
+
+### Alternatives
+Better alternatives to `heapguard` exist, including compiler-controlled
+instrumentations such as clang's `AddressSanitizer`, or the `valgrind` run-
+time library. You should probably use those tools before `heapguard`, as they
+are harder/better/faster/stronger.
+
+`heapguard` was developed to diagnose an out-of-bounds memory condition in a
+small embedded software program running on a platform where access to these
+tools was not practical due to memory limitations, as well asthe age of the OS
+and toolchain. If you find yourself in this situation, maybe `heapguard` will
+be useful to you, too.
 
 # Unit Tests
 To unit test `heapguard` on your hardware:
@@ -84,4 +106,3 @@ To unit test `heapguard` on your hardware:
 3. repeat steps 1 and 2 for underflow detection
 
 (This process obviously needs to be improved)
-
